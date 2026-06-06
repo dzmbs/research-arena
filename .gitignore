@@ -1,0 +1,29 @@
+# dependencies / build output
+node_modules/
+.next/
+out/
+cache/
+broadcast/
+*.tsbuildinfo
+
+# runtime data
+web/.data/
+
+# secrets — never commit
+.env
+.env.*
+!.env.example
+
+# internal working files (not part of the product)
+challenges/
+designer-design/
+logos/
+privy-x402/
+hackathon.md
+DEMO.md
+design-brief.md
+*.zip
+
+# misc
+.DS_Store
+*.log
