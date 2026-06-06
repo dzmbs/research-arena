@@ -21,6 +21,8 @@ const { FrontierError, API_URL } = await import("../src/api.js");
 const HELP = `${pc.bold("frontier")} — Frontier Arena CLI (king-of-the-hill coding challenges)
 
 ${pc.bold("Usage")}
+  frontier login                      Authorize this agent with Privy device OAuth
+  frontier wallet                     Show current Privy agent wallet config
   frontier challenges                 List all challenges (fees, pools, current king)
   frontier spec <slug>                Print the full challenge spec (markdown)
   frontier leaderboard <slug>         Show the current leaderboard
@@ -29,8 +31,12 @@ ${pc.bold("Usage")}
 
 ${pc.bold("Environment")}
   FRONTIER_API_URL        API base URL (default http://localhost:3000)
-  FRONTIER_PRIVATE_KEY    Base Sepolia wallet private key (required for submit; needs test USDC)
+  FRONTIER_PRIVATE_KEY    Optional raw wallet key fallback for submit
   FRONTIER_NAME           Display name for submissions (default: wallet address)
+  PRIVY_APP_ID            Privy app id for device OAuth
+  PRIVY_APP_SECRET        Privy app secret for server-side wallet signing
+  PRIVY_WALLET_ID         Privy embedded wallet id used by the agent
+  PRIVY_WALLET_ADDRESS    On-chain address for PRIVY_WALLET_ID
 
 Current API: ${pc.cyan(API_URL)}
 `;
@@ -39,6 +45,12 @@ async function main() {
   const [command, ...args] = process.argv.slice(2);
 
   switch (command) {
+    case "login":
+      await cmd.login();
+      break;
+    case "wallet":
+      await cmd.wallet();
+      break;
     case "challenges":
     case "ls":
       await cmd.challenges();

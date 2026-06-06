@@ -4,6 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { wrapFetchWithPayment, decodeXPaymentResponse } from "x402-fetch";
 
 import { API_URL, apiFetch, getJson, FrontierError } from "./api.js";
+import { login as privyLogin, wallet as privyWallet, privyPaidFetch } from "./privy.js";
 import { table } from "./table.js";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -112,15 +113,6 @@ export async function submit(slug, file) {
   requireArg(slug, "slug", "frontier submit <slug> <file>");
   requireArg(file, "file", "frontier submit <slug> <file>");
 
-  const pk = process.env.FRONTIER_PRIVATE_KEY;
-  if (!pk) {
-    throw new FrontierError(
-      `${pc.yellow("FRONTIER_PRIVATE_KEY")} is not set. Export the private key of a Base Sepolia ` +
-        `wallet funded with test USDC (https://faucet.circle.com).`,
-    );
-  }
-  const account = privateKeyToAccount(pk.startsWith("0x") ? pk : `0x${pk}`);
-
   let code;
   try {
     code = await readFile(file, "utf8");
@@ -128,22 +120,34 @@ export async function submit(slug, file) {
     throw new FrontierError(`Could not read strategy file ${pc.cyan(file)}: ${err.message}`);
   }
 
-  console.log(pc.dim(`Submitting ${file} as ${account.address} ...`));
-  console.log(pc.yellow("This is an x402-gated endpoint — paying the entry fee in USDC on Base Sepolia."));
-
-  // viem LocalAccount satisfies x402's EvmSigner type directly.
-  // Raise the max spend above x402's 0.10 USDC default so entry fees clear.
   // USDC has 6 decimals; FRONTIER_MAX_USDC (default 10) -> base units.
   const maxUsdc = Number(process.env.FRONTIER_MAX_USDC || "10");
   const maxValue = BigInt(Math.round(maxUsdc * 1e6));
-  const payFetch = wrapFetchWithPayment(fetch, account, maxValue);
+
+  let address;
+  let payFetch;
+  let decodePaymentResponse = decodeXPaymentResponse;
+  const pk = process.env.FRONTIER_PRIVATE_KEY;
+  if (pk) {
+    const account = privateKeyToAccount(pk.startsWith("0x") ? pk : `0x${pk}`);
+    address = account.address;
+    payFetch = wrapFetchWithPayment(fetch, account, maxValue);
+  } else {
+    const privy = await privyPaidFetch(maxValue);
+    address = privy.address;
+    payFetch = privy.fetch;
+    decodePaymentResponse = privy.decodePaymentResponse;
+  }
+
+  console.log(pc.dim(`Submitting ${file} as ${address} ...`));
+  console.log(pc.yellow(pk ? "Paying with FRONTIER_PRIVATE_KEY." : "Paying with Privy-authorized wallet via x402."));
 
   const res = await apiFetch(
     `/api/challenges/${encodeURIComponent(slug)}/submit`,
     {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name: process.env.FRONTIER_NAME || account.address, address: account.address, code }),
+      body: JSON.stringify({ name: process.env.FRONTIER_NAME || address, address, code, kind: "AGENT" }),
     },
     payFetch,
   );
@@ -152,7 +156,7 @@ export async function submit(slug, file) {
   const payHeader = res.headers.get("x-payment-response");
   if (payHeader) {
     try {
-      const decoded = decodeXPaymentResponse(payHeader);
+      const decoded = decodePaymentResponse(payHeader);
       const tx = decoded?.transaction || decoded?.txHash || decoded?.transactionHash;
       console.log(pc.green(`Payment settled${tx ? ` — tx ${tx}` : ""} on ${decoded?.network ?? "base-sepolia"}`));
     } catch {
@@ -232,6 +236,14 @@ function requireArg(value, name, usage) {
 function shortAddr(addr) {
   if (!addr) return "-";
   return addr.length > 12 ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : addr;
+}
+
+export async function login() {
+  await privyLogin();
+}
+
+export async function wallet() {
+  await privyWallet();
 }
 
 export { API_URL };

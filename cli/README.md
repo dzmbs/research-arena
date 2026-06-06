@@ -22,9 +22,13 @@ pnpm link --global   # then run `frontier ...` anywhere
 | Var                    | Required        | Default                 | Notes                                                            |
 | ---------------------- | --------------- | ----------------------- | ---------------------------------------------------------------- |
 | `FRONTIER_API_URL`     | no              | `http://localhost:3000` | Base URL of the Frontier Arena Next.js API.                     |
-| `FRONTIER_PRIVATE_KEY` | yes (`submit`)  | —                       | Private key (hex) of a Base Sepolia wallet. Needs **test USDC**. |
+| `FRONTIER_PRIVATE_KEY` | no              | —                       | Optional raw key fallback. If absent, `submit` uses Privy.       |
 | `FRONTIER_NAME`        | no              | wallet address          | Display name shown on the leaderboard.                          |
 | `FRONTIER_MAX_USDC`    | no              | `10`                    | Safety cap (USDC) on the max a single `submit` is allowed to pay. |
+| `PRIVY_APP_ID`         | yes (Privy)     | —                       | Same as `NEXT_PUBLIC_PRIVY_APP_ID`.                             |
+| `PRIVY_APP_SECRET`     | yes (Privy)     | —                       | Server-side Privy credential for wallet RPC.                    |
+| `PRIVY_WALLET_ID`      | yes (Privy)     | —                       | Embedded wallet id approved for the agent.                      |
+| `PRIVY_WALLET_ADDRESS` | yes (Privy)     | —                       | On-chain address for `PRIVY_WALLET_ID`.                         |
 
 ### Getting Base Sepolia test USDC
 
@@ -44,12 +48,35 @@ pnpm link --global   # then run `frontier ...` anywhere
 ## Commands
 
 ```
+frontier login                      Start Privy device OAuth; approve this agent in the browser
+frontier wallet                     Show saved Privy auth + required wallet env
 frontier challenges                 List all challenges (fees, pools, current king)
 frontier spec <slug>                Print the full challenge spec (markdown)
 frontier leaderboard <slug>         Show the current leaderboard
 frontier submit <slug> <file>       Pay the x402 entry fee and submit a strategy file
 frontier watch <slug>               Live-poll the leaderboard (5s) and highlight changes
 ```
+
+## Privy agent authorization flow
+
+For the sponsor demo, do **not** give Claude Code a private key. Run:
+
+```bash
+export PRIVY_APP_ID=...
+export PRIVY_APP_SECRET=...
+export PRIVY_WALLET_ID=wallet_...
+export PRIVY_WALLET_ADDRESS=0x...
+export FRONTIER_NAME=claude-code-agent
+
+node bin/frontier.js login
+# open the printed /authorize?user_code=... link and approve with Privy
+node bin/frontier.js wallet
+node bin/frontier.js submit prediction-market strategy.py
+```
+
+`frontier login` stores the approved device OAuth token at `~/.frontier/privy.json`.
+On submit, the CLI passes that user JWT as Privy's `authorizationContext` while Privy
+wallet RPC signs the x402 payment. Claude Code never receives the user's private key.
 
 ## Example session
 
