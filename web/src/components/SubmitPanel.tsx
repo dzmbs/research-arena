@@ -56,7 +56,7 @@ export default function SubmitPanel({ c }: { c: ChallengeView }) {
   let login: (() => void) | undefined;
   let walletAddress: string | undefined;
   let wrapFetchWithPayment:
-    | ((o: { walletAddress?: string; fetch: typeof fetch }) => typeof fetch)
+    | ((o: { walletAddress?: string; fetch: typeof fetch; maxValue?: bigint }) => typeof fetch)
     | undefined;
 
   if (HAS_PRIVY) {
@@ -140,7 +140,8 @@ export default function SubmitPanel({ c }: { c: ChallengeView }) {
 
     const doFetch =
       HAS_PRIVY && wrapFetchWithPayment && walletAddress
-        ? wrapFetchWithPayment({ walletAddress, fetch })
+        ? // cap at 1 USDC — the default (0.1) sits exactly at our fee and can reject it
+          wrapFetchWithPayment({ walletAddress, fetch, maxValue: BigInt(1_000_000) })
         : fetch;
 
     try {

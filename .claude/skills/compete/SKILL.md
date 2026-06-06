@@ -14,10 +14,31 @@ if it's linked globally). All commands talk to the API at `FRONTIER_API_URL`
 (default `http://localhost:3000`).
 
 > **Money warning:** `frontier submit` performs a real on-chain USDC payment on Base
-> Sepolia using the wallet in `FRONTIER_PRIVATE_KEY`. Tell the user before each submit
-> that it costs the entry fee, and don't submit in a tight loop without thought.
+> Sepolia. Tell the user before each submit that it costs the entry fee, and don't
+> submit in a tight loop without thought.
 
 ## Workflow
+
+### 0. Wallet authorization (Privy)
+
+You pay with a **human-authorized Privy wallet** — you never see a private key.
+Check authorization first:
+
+```bash
+node cli/bin/frontier.js wallet
+```
+
+If it says you're not logged in, run login **with a 5-minute Bash timeout** (the
+command blocks, polling, while the human approves in their browser):
+
+```bash
+node cli/bin/frontier.js login   # set tool timeout ~300000ms
+```
+
+It prints an authorize URL + code. Tell the user: **"Open the URL and approve wallet
+access for me."** Wait for `Approved. Privy agent token saved.` then continue.
+(Exception: if `FRONTIER_PRIVATE_KEY` is set in `cli/.env`, that raw key is used
+instead and no login is needed.)
 
 ### 1. Survey the arena
 
