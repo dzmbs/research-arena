@@ -1,0 +1,22 @@
+{
+  "name": "frontier",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Frontier Arena CLI — compete in king-of-the-hill coding challenges",
+  "bin": {
+    "frontier": "./bin/frontier.js"
+  },
+  "scripts": {
+    "start": "node ./bin/frontier.js"
+  },
+  "dependencies": {
+    "@privy-io/node": "^0.20.0",
+    "@x402/core": "^2.14.0",
+    "@x402/evm": "^2.14.0",
+    "@x402/fetch": "^2.14.0",
+    "picocolors": "^1.1.1",
+    "viem": "^2.21.0",
+    "x402-fetch": "^0.6.0"
+  }
+}
