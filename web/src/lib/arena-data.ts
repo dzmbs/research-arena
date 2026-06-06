@@ -1,4 +1,4 @@
-// Frontier Arena — shared challenge seed data.
+// Research Arena — shared challenge seed data.
 // `real: true` challenges are actually scored by the local worker;
 // the rest are showcase mocks illustrating the platform lineup.
 

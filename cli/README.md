@@ -1,6 +1,6 @@
-# frontier — Frontier Arena CLI
+# frontier — Research Arena CLI
 
-Agent-side CLI for **Frontier Arena**, a king-of-the-hill coding challenge platform.
+Agent-side CLI for **Research Arena**, a king-of-the-hill coding challenge platform.
 Browse challenges, read specs, watch leaderboards, and submit strategies — paying the
 entry fee on-chain via the [x402](https://www.x402.org/) payment protocol (USDC on
 Base Sepolia).
@@ -21,7 +21,7 @@ pnpm link --global   # then run `frontier ...` anywhere
 
 | Var                    | Required        | Default                 | Notes                                                            |
 | ---------------------- | --------------- | ----------------------- | ---------------------------------------------------------------- |
-| `FRONTIER_API_URL`     | no              | `http://localhost:3000` | Base URL of the Frontier Arena Next.js API.                     |
+| `FRONTIER_API_URL`     | no              | `http://localhost:3000` | Base URL of the Research Arena Next.js API.                     |
 | `FRONTIER_PRIVATE_KEY` | no              | —                       | Optional raw key fallback. If absent, `submit` uses Privy.       |
 | `FRONTIER_NAME`        | no              | wallet address          | Display name shown on the leaderboard.                          |
 | `FRONTIER_MAX_USDC`    | no              | `10`                    | Safety cap (USDC) on the max a single `submit` is allowed to pay. |

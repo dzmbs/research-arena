@@ -1,4 +1,4 @@
-// Frontier Arena — server-side helpers shared across API routes.
+// Research Arena — server-side helpers shared across API routes.
 import { promises as fs } from 'fs';
 import {
   CHALLENGES,

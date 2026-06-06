@@ -1,4 +1,4 @@
-// Frontier Arena — ambient arena simulation.
+// Research Arena — ambient arena simulation.
 // Lazily materializes "other competitors" submitting to the showcase (non-real)
 // challenges so the arena feels live. Called from read endpoints; generates
 // any events that became due since the last tick (no background timer needed).

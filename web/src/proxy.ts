@@ -1,4 +1,4 @@
-// Frontier Arena — x402 paywall for the real challenge's submit endpoint.
+// Research Arena — x402 paywall for the real challenge's submit endpoint.
 // If NEXT_PUBLIC_PAYTO_ADDRESS is unset, this no-ops so the app boots
 // without payment configured.
 import { NextResponse, type NextRequest } from 'next/server';

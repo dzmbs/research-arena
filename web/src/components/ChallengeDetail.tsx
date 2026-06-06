@@ -21,7 +21,10 @@ export default function ChallengeDetail({ slug }: { slug: string }) {
   const seed = seedChallenge(slug);
   const [challenge, setChallenge] = useState<ChallengeView | null>(seed ?? null);
   const [spec, setSpec] = useState<string>(() => seedSpec(slug, seed?.title));
-  const [entries, setEntries] = useState<LeaderEntry[]>(() => seedLeaderboard(slug));
+  // Real challenges must NEVER flash mock rows — start empty and fill from the API.
+  const [entries, setEntries] = useState<LeaderEntry[]>(() =>
+    seed?.real ? [] : seedLeaderboard(slug),
+  );
   const [toastName, setToastName] = useState<string | null>(null);
   const lastKing = useRef<string | null>(seed?.king?.name ?? null);
 

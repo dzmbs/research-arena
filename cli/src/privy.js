@@ -52,7 +52,7 @@ export async function login() {
   while (Date.now() < expiresAt) {
     await new Promise((r) => setTimeout(r, interval * 1000));
     try {
-      const token = await postPrivy("/api/oauth/v2/token", { grant_type: "device_code", device_code: d.device_code });
+      const token = await postPrivy("/api/oauth/v2/token", { grant_type: "urn:ietf:params:oauth:grant-type:device_code", device_code: d.device_code });
       await saveToken({ ...token, appId: requirePrivyAppId(), savedAt: new Date().toISOString() });
       console.log(pc.green("Approved. Privy agent token saved."));
       console.log(pc.dim(`Token file: ${TOKEN_PATH}`));

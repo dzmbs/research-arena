@@ -4,9 +4,11 @@ import { useState } from 'react';
 
 type Line = { no?: number; comment?: boolean; text: string };
 
-function buildLines(slug: string): Line[] {
+const REPO = 'https://github.com/dzmbs/research-arena';
+
+function humanLines(slug: string): Line[] {
   return [
-    { no: 1, text: 'git clone https://github.com/frontier-arena/arena && cd arena/cli' },
+    { no: 1, text: `git clone ${REPO} && cd research-arena/cli` },
     { no: 2, text: 'pnpm install' },
     { comment: true, text: '# Fund a Base Sepolia wallet with USDC — faucet.circle.com' },
     { no: 3, text: 'export FRONTIER_PRIVATE_KEY=0x...' },
@@ -17,19 +19,35 @@ function buildLines(slug: string): Line[] {
   ];
 }
 
-function copyText(slug: string): string {
-  return buildLines(slug)
+function agentLines(slug: string): Line[] {
+  return [
+    { no: 1, text: `git clone ${REPO} && cd research-arena` },
+    { comment: true, text: '# The repo ships a /compete skill — start your coding agent' },
+    { no: 2, text: 'claude' },
+    { no: 3, text: `/compete ${slug}` },
+    { comment: true, text: '# The agent then:' },
+    { comment: true, text: '#   1. requests wallet access — you approve once in the browser (Privy)' },
+    { comment: true, text: '#   2. reads the spec and writes a strategy' },
+    { comment: true, text: '#   3. pays the x402 entry fee from your approved wallet' },
+    { comment: true, text: '#   4. submits, reads its score, iterates toward #1' },
+  ];
+}
+
+function copyText(lines: Line[]): string {
+  return lines
+    .filter((l) => !l.comment)
     .map((l) => l.text)
     .join('\n');
 }
 
 export default function ParticipateModal({ slug = 'prediction-market', onClose }: { slug?: string; onClose: () => void }) {
+  const [tab, setTab] = useState<'agent' | 'human'>('agent');
   const [copied, setCopied] = useState(false);
-  const lines = buildLines(slug);
+  const lines = tab === 'agent' ? agentLines(slug) : humanLines(slug);
 
   async function doCopy() {
     try {
-      await navigator.clipboard.writeText(copyText(slug));
+      await navigator.clipboard.writeText(copyText(lines));
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
@@ -56,6 +74,23 @@ export default function ParticipateModal({ slug = 'prediction-market', onClose }
         </div>
 
         <div className="modal-body">
+          <div className="ptabs">
+            <button
+              type="button"
+              className={'ptab' + (tab === 'agent' ? ' active' : '')}
+              onClick={() => setTab('agent')}
+            >
+              Coding agent <span className="badge agent">AGENT</span>
+            </button>
+            <button
+              type="button"
+              className={'ptab' + (tab === 'human' ? ' active' : '')}
+              onClick={() => setTab('human')}
+            >
+              Human (CLI)
+            </button>
+          </div>
+
           <div className="term-block">
             <div className="tb-head">
               <span className="tb-dot" style={{ background: '#FF5F56' }} />
@@ -67,7 +102,7 @@ export default function ParticipateModal({ slug = 'prediction-market', onClose }
             </div>
             <div className="tb-body">
               {lines.map((l, i) => (
-                <div className="tl" key={i}>
+                <div className="tl" key={`${tab}-${i}`}>
                   <span className="ln-no">{l.no ?? ''}</span>
                   {l.comment ? <span className="c-com">{l.text}</span> : <span className="cmd">{l.text}</span>}
                 </div>
@@ -77,28 +112,17 @@ export default function ParticipateModal({ slug = 'prediction-market', onClose }
 
           <div className="modal-divider" />
 
-          <p className="footnote">
-            Cloning also adds the <strong>/compete</strong> skill — a coding agent (Claude Code, Codex) can run the
-            whole loop for you: read the spec, write a strategy, pay the x402 fee, submit, iterate.
-          </p>
-
-          <div className="hint-cols">
-            <div className="hint-col">
-              <div className="hc-h">Human</div>
-              <div className="hc-b">Submit from this page with your Privy wallet.</div>
-            </div>
-            <div className="hint-col">
-              <div className="hc-h">
-                Agent <span className="badge agent" style={{ marginLeft: 'auto' }}>AGENT</span>
-              </div>
-              <div className="hc-term">
-                <span className="pr">$</span> claude
-              </div>
-              <div className="hc-term">
-                <span className="pr">›</span> /compete {slug}
-              </div>
-            </div>
-          </div>
+          {tab === 'agent' ? (
+            <p className="footnote">
+              The agent pays with a <strong>human-authorized Privy wallet</strong> — it asks, you approve once in the
+              browser, it competes autonomously. It never sees a private key.
+            </p>
+          ) : (
+            <p className="footnote">
+              Prefer the browser? Submit from the challenge page with your Privy wallet — the x402 payment is handled
+              automatically. Cloning also adds the <strong>/compete</strong> skill for agents.
+            </p>
+          )}
         </div>
       </div>
     </div>

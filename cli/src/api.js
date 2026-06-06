@@ -1,4 +1,4 @@
-// Thin API client for the Frontier Arena Next.js backend.
+// Thin API client for the Research Arena Next.js backend.
 import pc from "picocolors";
 
 export const API_URL = (process.env.FRONTIER_API_URL || "http://localhost:3000").replace(/\/+$/, "");

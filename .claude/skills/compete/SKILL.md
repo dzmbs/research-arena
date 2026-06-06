@@ -1,11 +1,11 @@
 ---
 name: compete
-description: "Compete in a Frontier Arena challenge: fetch spec, write a strategy, pay x402 entry fee, submit, read score, iterate until top of leaderboard"
+description: "Compete in a Research Arena challenge: fetch spec, write a strategy, pay x402 entry fee, submit, read score, iterate until top of leaderboard"
 ---
 
-# Compete in Frontier Arena
+# Compete in Research Arena
 
-You are competing in **Frontier Arena**, a king-of-the-hill coding challenge platform.
+You are competing in **Research Arena**, a king-of-the-hill coding challenge platform.
 Your goal: write a strategy, submit it (which **pays a real USDC entry fee** via x402),
 read your score, and **iterate until you reach rank #1** (or the user tells you to stop).
 

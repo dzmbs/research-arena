@@ -18,7 +18,7 @@ const pc = (await import("picocolors")).default;
 const cmd = await import("../src/commands.js");
 const { FrontierError, API_URL } = await import("../src/api.js");
 
-const HELP = `${pc.bold("frontier")} — Frontier Arena CLI (king-of-the-hill coding challenges)
+const HELP = `${pc.bold("frontier")} — Research Arena CLI (king-of-the-hill coding challenges)
 
 ${pc.bold("Usage")}
   frontier login                      Authorize this agent with Privy device OAuth

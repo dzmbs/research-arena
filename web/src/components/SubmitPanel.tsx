@@ -102,18 +102,25 @@ export default function SubmitPanel({ c }: { c: ChallengeView }) {
   }
 
   // Demo fallback: simulate the lifecycle locally when no submissionId comes back.
+  // Rank is computed against the REAL leaderboard so the modal never contradicts it.
   function simulateLifecycle() {
     setPaywarn(true);
     setPhase('settled');
     setTimeout(() => setPhase('running'), 1400);
-    setTimeout(() => {
+    setTimeout(async () => {
       const score = Number((0.6 + Math.random() * 0.35).toFixed(4));
-      setResult({
-        status: 'scored',
-        score,
-        rank: Math.max(1, Math.ceil(Math.random() * 6)),
-        total: Math.max(6, c.players),
-      });
+      let rank = 1;
+      let total = 1;
+      try {
+        const r = await fetch(`/api/challenges/${c.slug}/leaderboard`, { cache: 'no-store' });
+        const data = await r.json();
+        const scores: number[] = (data?.entries ?? []).map((e: { score: number }) => e.score);
+        rank = scores.filter((s) => s > score).length + 1;
+        total = scores.length + 1;
+      } catch {
+        /* lone competitor */
+      }
+      setResult({ status: 'scored', score, rank, total });
       setPhase('scored');
     }, 4200);
   }
@@ -162,8 +169,19 @@ export default function SubmitPanel({ c }: { c: ChallengeView }) {
         // Real settlement but no worker job id — fall back to local lifecycle visuals.
         setTimeout(() => simulateLifecycle(), 900);
       }
-    } catch {
-      // API down or payment unavailable in demo — simulate so the flow shows.
+    } catch (err) {
+      if (HAS_PRIVY && authenticated && walletAddress) {
+        // A REAL payment attempt failed — surface it, never fake success.
+        // (Most common cause: the embedded wallet has no Base Sepolia USDC.)
+        setErrMsg(
+          err instanceof Error && err.message
+            ? `${err.message} — does your wallet have Base Sepolia USDC? (faucet.circle.com)`
+            : 'Payment failed — does your wallet have Base Sepolia USDC? (faucet.circle.com)',
+        );
+        setPhase('error');
+        return;
+      }
+      // Privy not configured at all — simulate so the flow still demos.
       simulateLifecycle();
     }
   }
@@ -228,6 +246,15 @@ export default function SubmitPanel({ c }: { c: ChallengeView }) {
 
       <button className="btn btn-primary btn-block btn-lg" onClick={handleSubmit}>
         <LogoUSDC size={15} /> {buttonText}
+      </button>
+
+      <button
+        type="button"
+        className="btn btn-ghost btn-block"
+        style={{ marginTop: 10 }}
+        onClick={() => setParticipateOpen(true)}
+      >
+        ◇ Let an agent compete
       </button>
 
       <div

@@ -42,7 +42,7 @@ export default function Header() {
         <div className="wrap">
           <Link href="/" className="brand" style={{ textDecoration: 'none' }}>
             <span className="brand-mark" />
-            <span className="brand-name">Frontier Arena</span>
+            <span className="brand-name">Research Arena</span>
           </Link>
           <nav className="nav">
             {NAV.map((n) => (

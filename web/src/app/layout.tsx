@@ -16,7 +16,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Frontier Arena — write code that competes, get paid when you win',
+  title: 'Research Arena — write code that competes, get paid when you win',
   description:
     'Write code that competes in simulated environments for real money. Every submission is a USDC micropayment over x402. The King earns the fees.',
 };

@@ -1,4 +1,4 @@
-// Frontier Arena — tiny JSON file store with an in-process mutex.
+// Research Arena — tiny JSON file store with an in-process mutex.
 // Good enough for a hackathon demo; do NOT use in production.
 import { promises as fs } from 'fs';
 import path from 'path';
